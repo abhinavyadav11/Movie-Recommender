@@ -6,6 +6,14 @@ import pandas as pd
 # URL of the file in the GitHub release
 file_url = "https://github.com/abhinavyadav11/Movie-Recommender/releases/download/v1.0/similarity.pkl"
 
+import os
+import streamlit as st
+import requests
+import pickle
+
+# URL of the file in the GitHub release
+file_url = "https://github.com/abhinavyadav11/Movie-Recommender/releases/download/v1.0/similarity.pkl"
+
 # Function to download the file
 def download_file(url, file_name):
     response = requests.get(url)
@@ -15,17 +23,23 @@ def download_file(url, file_name):
         return True
     return False
 
-# Download the similarity.pkl file
-if download_file(file_url, 'similarity.pkl'):
-    st.write("File downloaded successfully!")
+# Download the similarity.pkl file if it doesn't exist
+if not os.path.exists('similarity.pkl'):
+    if download_file(file_url, 'similarity.pkl'):
+        st.write("File downloaded successfully!")
+    else:
+        st.error("Failed to download the file.")
+        st.stop()  # Stop execution if file can't be downloaded
 
-    # Load the file using pickle
+# Load the file using pickle
+try:
     with open('similarity.pkl', 'rb') as file:
         similarity = pickle.load(file)
-
     st.write("File loaded and ready to use!")
-else:
-    st.error("Failed to download the file.")
+except FileNotFoundError:
+    st.error("File similarity.pkl not found!")
+    st.stop()  # Stop execution if file not found
+
 
 # Load the movie dictionary and create the DataFrame
 movies_dict = pickle.load(open('movie-recommend-dict.pkl', 'rb'))
